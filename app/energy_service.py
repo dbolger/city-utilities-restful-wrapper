@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from login import login
-from energy_request import request
+from app.login.login import login
+from app.energy_request.energy_request import request
 
 app = FastAPI(docs_url=None, redoc_url=None)
 

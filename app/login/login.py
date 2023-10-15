@@ -1,6 +1,6 @@
 import requests
 import re
-from constants import loginPageHeaders, loginRequestJson, genericRequestHeaders, loginPageUri, loginRequestEndpoint
+from ..constants.constants import loginPageHeaders, loginRequestJson, genericRequestHeaders, loginPageUri, loginRequestEndpoint
 
 def login():
     # Grab generated session keys from viewing the webpage
