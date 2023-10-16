@@ -2,7 +2,7 @@
 A REST service to request data from my energy provider.
 
 Implemented alongside RESTful Sensor integration:
-https://www.home-assistant.io/integrations/sensor.rest/
+https://www.home-assistant.io/integrations/rest
 
 Credentials can be provided in a `credentials.py` file.
 
