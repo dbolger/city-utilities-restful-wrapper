@@ -2,6 +2,8 @@ import requests
 import re
 from ...constants.constants import loginPageHeaders, loginRequestJson, genericRequestHeaders, loginPageUri, loginRequestEndpoint
 
+s = requests.session()
+
 def login():
     # Grab generated session keys from viewing the webpage
     aga, asi, ct = grabRequiredKeys()
@@ -17,7 +19,7 @@ def login():
 
 
 def grabRequiredKeys():
-    loginPageResponse = requests.get(loginPageUri, headers=loginPageHeaders)
+    loginPageResponse = s.get(loginPageUri, headers=loginPageHeaders)
     affinityMatcher = re.compile("CORS=(.+?);")
     affinityResults = affinityMatcher.search(loginPageResponse.headers['Set-Cookie'])
     appGatewayAffinity = affinityResults.group(1)
@@ -29,6 +31,7 @@ def grabRequiredKeys():
     csrfMatcher = re.compile("id=\"hdnCSRFToken\" value=\"(.+)\"")
     csrfResults = csrfMatcher.search(loginPageResponse.text)
     csrfToken = csrfResults.group(1)
+    s.cookies.clear()
     return appGatewayAffinity, aspNetSessionId, csrfToken
 
 def performLoginRequest(appGatewayAffinity, aspNetSessionId, csrfToken):
@@ -40,7 +43,7 @@ def performLoginRequest(appGatewayAffinity, aspNetSessionId, csrfToken):
 
     genericRequestHeaders['csrftoken'] = csrfToken
 
-    loginResponse = requests.post(
+    loginResponse = s.post(
         loginRequestEndpoint,
         cookies=loginRequestCookies,
         headers=genericRequestHeaders,
@@ -50,4 +53,5 @@ def performLoginRequest(appGatewayAffinity, aspNetSessionId, csrfToken):
     scpMatcher = re.compile("SCP=(.{36});")
     scpSearchResults = scpMatcher.search(loginResponse.headers['Set-Cookie'])
     loginToken = scpSearchResults.group(1)
+    s.cookies.clear()
     return loginToken
