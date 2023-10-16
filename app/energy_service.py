@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.login.login import login
-from app.energy_request.energy_request import request
+from app.request.login.login_request import login
+from app.request.energy.energy_request import requestUsageData
 import os
 import json
 
@@ -13,7 +13,7 @@ def get():
         print('Debug file present')
         return getDebugResponse()
     sessionKeys = login()
-    return request(sessionKeys)
+    return requestUsageData(sessionKeys)
 
 def getDebugResponse():
     with open(debugFilePath) as file:

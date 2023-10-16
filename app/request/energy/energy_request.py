@@ -1,6 +1,6 @@
 import json
 import requests
-from ..constants.constants import usageRequestCookies, genericRequestHeaders, electricUsageRequestJson, waterUsageRequestJson, waterRequestEndpoint, electricRequestEndpoint
+from ...constants.constants import usageRequestCookies, genericRequestHeaders, electricUsageRequestJson, waterUsageRequestJson, waterRequestEndpoint, electricRequestEndpoint
 
 # Electric
 
@@ -56,8 +56,12 @@ def requestWater():
     
 def parseResponse(response):
     # such an icky response from an endpoint
-    # TODO: Remove unneeded JSON entries?
-    return json.loads(response.text.replace("\\\"", "\"").replace("\\\"", "\"").replace("\"{\"", "{\"").replace("}\"}", "}}"))['d']['objUsageGenerationResultSetTwo']
+    jsonResponse = json.loads(response.text.replace("\\\"", "\"").replace("\\\"", "\"").replace("\"{\"", "{\"").replace("}\"}", "}}"))['d']
+    # TODO: Remove useless data from response
+    return {
+        "usageData": jsonResponse['objUsageGenerationResultSetTwo'], # Raw usage data for each timeframe
+        "tentativeData": jsonResponse['getTentativeData'] # Accumulated usage data and predictions
+    }
 
 def setupRequestParameters(parameters):
     # Setup cookies and csrftoken to perform requests
@@ -69,7 +73,7 @@ def setupRequestParameters(parameters):
 
 # Service calling method
 
-def request(requestParameters):
+def requestUsageData(requestParameters):
     setupRequestParameters(requestParameters)
     return {
         "electric": requestElectric(),

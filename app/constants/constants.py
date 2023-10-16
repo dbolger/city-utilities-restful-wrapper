@@ -1,4 +1,4 @@
-from app.login.credentials import *
+from app.request.login.credentials import *
 
 # TODO: Organize this better
 
