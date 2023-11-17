@@ -91,6 +91,7 @@ electricUsageRequestJson = {
     # Set Mode
     'UsageOrGeneration': '1',
     'Type': 'K',
+    'strDate': '',
     'hourlyType': 'H',
     'SeasonId': '',
     'weatherOverlay': 0,
@@ -103,6 +104,7 @@ electricUsageRequestJson = {
 waterUsageRequestJson = {
     # Set Mode
     "Type":"W",
+    "strDate": "",
     "hourlyType":"H",
     "seasonId":"",
     "weatherOverlay":0,
