@@ -1,15 +1,15 @@
 import json
 import requests
-from ...constants.constants import usageRequestCookies, genericRequestHeaders, electricUsageRequestJson, waterUsageRequestJson, waterRequestEndpoint, electricRequestEndpoint
+from ...constants.constants import usageRequestCookies, genericRequestHeaders, electricUsageRequestJson, waterUsageRequestJson, waterRequestEndpoint, electricRequestEndpoint, RequestMode, uselessResponseKeys
 
+from datetime import date
+from datetime import timedelta
 # Electric
 
-def dayElectricRequest():
-    electricUsageRequestJson['Mode'] = 'D'
-    return performElectricRequest()
-
-def monthElectricRequest():
-    electricUsageRequestJson['Mode'] = 'M'
+def doElectricRequest(requestMode: RequestMode):
+    electricUsageRequestJson['Mode'] = requestMode.value
+    if (requestMode in [RequestMode.halfHour, RequestMode.hour]):
+        electricUsageRequestJson['strDate'] = getYesterday()
     return performElectricRequest()
 
 def performElectricRequest():
@@ -23,18 +23,18 @@ def performElectricRequest():
 
 def requestElectric():
     return {
-        "day": dayElectricRequest(),
-        "month": monthElectricRequest()
+        "halfHour": doElectricRequest(RequestMode.halfHour),
+        "hour": doElectricRequest(RequestMode.hour),
+        "day": doElectricRequest(RequestMode.day),
+        "month": doElectricRequest(RequestMode.month)
     }
 
 # Water
 
-def dayWaterRequest():
-    waterUsageRequestJson['Mode'] = 'D'
-    return performWaterRequest()
-
-def monthWaterRequest():
-    waterUsageRequestJson['Mode'] = 'M'
+def doWaterRequest(requestMode: RequestMode):
+    waterUsageRequestJson['Mode'] = requestMode.value
+    if (requestMode in [RequestMode.hour]):
+        waterUsageRequestJson['strDate'] = getYesterday()
     return performWaterRequest()
 
 def performWaterRequest():
@@ -48,16 +48,16 @@ def performWaterRequest():
 
 def requestWater():
     return {
-        "day": dayWaterRequest(),
-        "month": monthWaterRequest()
+        "hour": doWaterRequest(RequestMode.hour),
+        "day": doWaterRequest(RequestMode.day),
+        "month": doWaterRequest(RequestMode.month)
     }
 
 # Utility methods
     
 def parseResponse(response):
-    # such an icky response from an endpoint
     jsonResponse = json.loads(response.text.replace("\\\"", "\"").replace("\\\"", "\"").replace("\"{\"", "{\"").replace("}\"}", "}}"))['d']
-    # TODO: Remove useless data from response
+    cleanResponse(jsonResponse)
     return {
         "usageData": jsonResponse['objUsageGenerationResultSetTwo'], # Raw usage data for each timeframe
         "tentativeData": jsonResponse['getTentativeData'] # Accumulated usage data and predictions
@@ -80,3 +80,24 @@ def requestUsageData(requestParameters):
         "water": requestWater()
     }
 
+def getYesterday():
+    yesterday = date.today() - timedelta(days = 1)
+    return yesterday.strftime("%x")
+
+def cleanResponse(response: dict):
+    # Remove the response keys that provide no information
+    for key in uselessResponseKeys:
+        removeKey(response, key)
+
+def removeKey(object, keyBeingRemoved):
+    # If object is a dict, recursively search over data for keyBeingRemoved
+    if (isinstance(object, dict)):
+        for listData in list(object):
+            if listData == keyBeingRemoved:
+                del object[keyBeingRemoved]
+            else:
+                removeKey(object[listData], keyBeingRemoved)
+    # If the object is a list, iterate over each object in the list
+    elif (isinstance(object, list)):
+        for listData in list(object):
+            removeKey(listData, keyBeingRemoved)

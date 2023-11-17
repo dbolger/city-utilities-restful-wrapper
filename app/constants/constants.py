@@ -1,6 +1,20 @@
 from app.request.login.credentials import *
+from enum import Enum
 
-# TODO: Organize this better
+# Useless response key/pairs
+uselessResponseKeys = ['DemandColorCode', 'UsageDelvcolorCode', 'UsageReccolorCode',
+               'UsageColorCode', 'SoFarColorCode', 'ExpectedUsageColorCode',
+               'PeakLoadColorCode', 'AverageColorCode', 'LoadFactorColorCode',
+               'HighestColorCode', 'IsOnlyAMI', 'Skey', 'AccountNumber',
+               'UpToDecimalPlaces', 'UsageCycle', 'PeakLoad', 'LoadFactor',
+               'DemandValue', 'UsageRecValue', 'WeatherUsageDate']
+
+# Possible energy request modes
+class RequestMode(Enum):
+    halfHour = 'MI'
+    hour = 'H'
+    day = 'D'
+    month = 'M'
 
 # Shared
 genericRequestHeaders = {
@@ -77,7 +91,6 @@ electricUsageRequestJson = {
     # Set Mode
     'UsageOrGeneration': '1',
     'Type': 'K',
-    'strDate': '',
     'hourlyType': 'H',
     'SeasonId': '',
     'weatherOverlay': 0,
@@ -90,7 +103,6 @@ electricUsageRequestJson = {
 waterUsageRequestJson = {
     # Set Mode
     "Type":"W",
-    "strDate":"",
     "hourlyType":"H",
     "seasonId":"",
     "weatherOverlay":0,
