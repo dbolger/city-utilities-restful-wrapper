@@ -1,14 +1,14 @@
 import requests
 import re
-from ...constants.constants import loginPageHeaders, loginRequestJson, genericRequestHeaders, loginPageUri, loginRequestEndpoint
+from ...constants.constants import login_page_headers, login_request_json, generic_request_headers, login_page_uri, login_request_endpoint
 
 s = requests.session()
 
 def login():
     # Grab generated session keys from viewing the webpage
-    aga, asi, ct = grabRequiredKeys()
+    aga, asi, ct = grab_required_keys()
     # Perform a login request using keys found on the page and JSON data (credentials)
-    lt = performLoginRequest(aga, asi, ct)
+    lt = perform_login_request(aga, asi, ct)
     # Return the keys required to make endpoint calls
     return {
         "lt": lt,
@@ -18,40 +18,40 @@ def login():
     }
 
 
-def grabRequiredKeys():
-    loginPageResponse = s.get(loginPageUri, headers=loginPageHeaders)
-    affinityMatcher = re.compile("CORS=(.+?);")
-    affinityResults = affinityMatcher.search(loginPageResponse.headers['Set-Cookie'])
-    appGatewayAffinity = affinityResults.group(1)
+def grab_required_keys():
+    login_page_response = s.get(login_page_uri, headers=login_page_headers)
+    affinity_matcher = re.compile("CORS=(.+?);")
+    affinity_results = affinity_matcher.search(login_page_response.headers['Set-Cookie'])
+    app_gateway_affinity = affinity_results.group(1)
 
-    aspNetSessionIdMatcher = re.compile("ASP\.NET\_SessionId=(.+?);")
-    aspnetResults = aspNetSessionIdMatcher.search(loginPageResponse.headers['Set-Cookie'])
-    aspNetSessionId = aspnetResults.group(1)
+    asp_net_session_id_matcher = re.compile("ASP\.NET\_SessionId=(.+?);")
+    asp_net_results = asp_net_session_id_matcher.search(login_page_response.headers['Set-Cookie'])
+    asp_net_session_id = asp_net_results.group(1)
 
-    csrfMatcher = re.compile("id=\"hdnCSRFToken\" value=\"(.+)\"")
-    csrfResults = csrfMatcher.search(loginPageResponse.text)
-    csrfToken = csrfResults.group(1)
+    csrf_matcher = re.compile("id=\"hdnCSRFToken\" value=\"(.+)\"")
+    csrf_results = csrf_matcher.search(login_page_response.text)
+    csrf_token = csrf_results.group(1)
     s.cookies.clear()
-    return appGatewayAffinity, aspNetSessionId, csrfToken
+    return app_gateway_affinity, asp_net_session_id, csrf_token
 
-def performLoginRequest(appGatewayAffinity, aspNetSessionId, csrfToken):
-    loginRequestCookies = {
-        'ApplicationGatewayAffinityCORS': appGatewayAffinity,
-        'ApplicationGatewayAffinity': appGatewayAffinity,
-        'ASP.NET_SessionId': aspNetSessionId,
+def perform_login_request(app_gateway_affinity, asp_net_session_id, csrf_token):
+    login_request_cookies = {
+        'ApplicationGatewayAffinityCORS': app_gateway_affinity,
+        'ApplicationGatewayAffinity': app_gateway_affinity,
+        'ASP.NET_SessionId': asp_net_session_id,
     }
 
-    genericRequestHeaders['csrftoken'] = csrfToken
+    generic_request_headers['csrftoken'] = csrf_token
 
-    loginResponse = s.post(
-        loginRequestEndpoint,
-        cookies=loginRequestCookies,
-        headers=genericRequestHeaders,
-        json=loginRequestJson,
+    login_response = s.post(
+        login_request_endpoint,
+        cookies=login_request_cookies,
+        headers=generic_request_headers,
+        json=login_request_json,
     )
 
-    scpMatcher = re.compile("SCP=(.{36});")
-    scpSearchResults = scpMatcher.search(loginResponse.headers['Set-Cookie'])
-    loginToken = scpSearchResults.group(1)
+    scp_matcher = re.compile("SCP=(.{36});")
+    scp_results = scp_matcher.search(login_response.headers['Set-Cookie'])
+    login_token = scp_results.group(1)
     s.cookies.clear()
-    return loginToken
+    return login_token

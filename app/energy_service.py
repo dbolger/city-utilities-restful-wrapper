@@ -1,23 +1,23 @@
 from fastapi import FastAPI
 from app.request.login.login_request import login
-from app.request.energy.energy_request import requestUsageData
+from app.request.energy.energy_request import request_usage_data
 import os
 import json
 
 app = FastAPI(docs_url=None, redoc_url=None)
-debugFilePath = "./get_response.json"
+debug_file_path = "./get_response.json"
 
 @app.get('/get')
 def get():
-    if (debugFileExists()):
+    if (debug()):
         print('Debug file present')
-        return getDebugResponse()
-    sessionKeys = login()
-    return requestUsageData(sessionKeys)
+        return get_debug_response()
+    session_keys = login()
+    return request_usage_data(session_keys)
 
-def getDebugResponse():
-    with open(debugFilePath) as file:
+def get_debug_response():
+    with open(debug_file_path) as file:
         return json.load(file)
 
-def debugFileExists():
-    return os.path.isfile(debugFilePath)
+def debug():
+    return os.path.isfile(debug_file_path)

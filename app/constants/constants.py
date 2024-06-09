@@ -2,7 +2,7 @@ from app.request.login.credentials import *
 from enum import Enum
 
 # Useless response key/pairs
-uselessResponseKeys = ['DemandColorCode', 'UsageDelvcolorCode', 'UsageReccolorCode',
+useless_response_keys = ['DemandColorCode', 'UsageDelvcolorCode', 'UsageReccolorCode',
                'UsageColorCode', 'SoFarColorCode', 'ExpectedUsageColorCode',
                'PeakLoadColorCode', 'AverageColorCode', 'LoadFactorColorCode',
                'HighestColorCode', 'IsOnlyAMI', 'Skey', 'AccountNumber',
@@ -17,7 +17,7 @@ class RequestMode(Enum):
     month = 'M'
 
 # Shared
-genericRequestHeaders = {
+generic_request_headers = {
     # set csrftoken
     'Accept': 'application/json, text/javascript, */*; q=0.01',
     'Accept-Language': 'en-US,en;q=0.9,la;q=0.8',
@@ -40,7 +40,7 @@ genericRequestHeaders = {
 }
 ################################################################
 # Login
-loginPageHeaders = {
+login_page_headers = {
     # no setting needed
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'Accept-Language': 'en-US,en;q=0.9,la;q=0.8',
@@ -59,7 +59,7 @@ loginPageHeaders = {
     'sec-ch-ua-platform': '"Linux"',
 }
 
-loginRequestJson = {
+login_request_json = {
     # no setting needed
     'username': username,
     'password': password,
@@ -72,7 +72,7 @@ loginRequestJson = {
 ################################################################
 # Usage
 
-usageRequestCookies = {
+usage_request_cookies = {
     # set the following:
     # ApplicationGatewayAffinityCORS
     # ApplicationGatewayAffinity
@@ -87,7 +87,7 @@ usageRequestCookies = {
     'UName': uName,
 }
 
-electricUsageRequestJson = {
+electric_usage_request_json = {
     # Set Mode
     'UsageOrGeneration': '1',
     'Type': 'K',
@@ -101,7 +101,7 @@ electricUsageRequestJson = {
     'DateToDaily': '',
 }
 
-waterUsageRequestJson = {
+water_usage_request_json = {
     # Set Mode
     "Type":"W",
     "strDate": "",
@@ -118,7 +118,7 @@ waterUsageRequestJson = {
 ################################################################
 # Endpoints/URIs
 
-waterRequestEndpoint = 'https://myaccount.cityutilities.net/Portal/Usages.aspx/LoadWaterUsage'
-electricRequestEndpoint = 'https://myaccount.cityutilities.net/Portal/Usages.aspx/LoadUsage'
-loginRequestEndpoint = 'https://myaccount.cityutilities.net/Portal/Default.aspx/validateLogin'
-loginPageUri = 'https://myaccount.cityutilities.net/Portal/default.aspx'
+water_request_endpoint = 'https://myaccount.cityutilities.net/Portal/Usages.aspx/LoadWaterUsage'
+electric_request_endpoint = 'https://myaccount.cityutilities.net/Portal/Usages.aspx/LoadUsage'
+login_request_endpoint = 'https://myaccount.cityutilities.net/Portal/Default.aspx/validateLogin'
+login_page_uri = 'https://myaccount.cityutilities.net/Portal/default.aspx'

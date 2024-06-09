@@ -1,103 +1,103 @@
 import json
 import requests
-from ...constants.constants import usageRequestCookies, genericRequestHeaders, electricUsageRequestJson, waterUsageRequestJson, waterRequestEndpoint, electricRequestEndpoint, RequestMode, uselessResponseKeys
+from ...constants.constants import usage_request_cookies, generic_request_headers, electric_usage_request_json, water_usage_request_json, water_request_endpoint, electric_request_endpoint, RequestMode, useless_response_keys
 
 from datetime import date
 from datetime import timedelta
 # Electric
 
-def doElectricRequest(requestMode: RequestMode):
-    electricUsageRequestJson['Mode'] = requestMode.value
-    if (requestMode in [RequestMode.halfHour, RequestMode.hour]):
-        electricUsageRequestJson['strDate'] = getYesterday()
-    return performElectricRequest()
+def do_electric_request(request_mode: RequestMode):
+    electric_usage_request_json['Mode'] = request_mode.value
+    if (request_mode in [RequestMode.halfHour, RequestMode.hour]):
+        electric_usage_request_json['strDate'] = get_yesterday_date()
+    return perform_electric_request()
 
-def performElectricRequest():
-    electricUsageResponse = requests.post(
-        electricRequestEndpoint,
-        cookies=usageRequestCookies,
-        headers=genericRequestHeaders,
-        json=electricUsageRequestJson
+def perform_electric_request():
+    electric_usage_response = requests.post(
+        electric_request_endpoint,
+        cookies=usage_request_cookies,
+        headers=generic_request_headers,
+        json=electric_usage_request_json
     )
-    return parseResponse(electricUsageResponse)
+    return parse_response(electric_usage_response)
 
-def requestElectric():
+def request_electric():
     return {
-        "halfHour": doElectricRequest(RequestMode.halfHour),
-        "hour": doElectricRequest(RequestMode.hour),
-        "day": doElectricRequest(RequestMode.day),
-        "month": doElectricRequest(RequestMode.month)
+        "halfHour": do_electric_request(RequestMode.halfHour),
+        "hour": do_electric_request(RequestMode.hour),
+        "day": do_electric_request(RequestMode.day),
+        "month": do_electric_request(RequestMode.month)
     }
 
 # Water
 
-def doWaterRequest(requestMode: RequestMode):
-    waterUsageRequestJson['Mode'] = requestMode.value
+def do_water_request(requestMode: RequestMode):
+    water_usage_request_json['Mode'] = requestMode.value
     if (requestMode in [RequestMode.hour]):
-        waterUsageRequestJson['strDate'] = getYesterday()
-    return performWaterRequest()
+        water_usage_request_json['strDate'] = get_yesterday_date()
+    return perform_water_request()
 
-def performWaterRequest():
-    waterUsageResponse = requests.post(
-        waterRequestEndpoint,
-        cookies=usageRequestCookies,
-        headers=genericRequestHeaders,
-        json=waterUsageRequestJson
+def perform_water_request():
+    water_usage_response = requests.post(
+        water_request_endpoint,
+        cookies=usage_request_cookies,
+        headers=generic_request_headers,
+        json=water_usage_request_json
     )
-    return parseResponse(waterUsageResponse)
+    return parse_response(water_usage_response)
 
-def requestWater():
+def request_water():
     return {
-        "hour": doWaterRequest(RequestMode.hour),
-        "day": doWaterRequest(RequestMode.day),
-        "month": doWaterRequest(RequestMode.month)
+        "hour": do_water_request(RequestMode.hour),
+        "day": do_water_request(RequestMode.day),
+        "month": do_water_request(RequestMode.month)
     }
 
 # Utility methods
     
-def parseResponse(response):
-    jsonResponse = json.loads(response.text.replace("\\\"", "\"").replace("\\\"", "\"").replace("\"{\"", "{\"").replace("}\"}", "}}"))['d']
-    cleanResponse(jsonResponse)
+def parse_response(response):
+    json_response = json.loads(response.text.replace("\\\"", "\"").replace("\\\"", "\"").replace("\"{\"", "{\"").replace("}\"}", "}}"))['d']
+    clean_response(json_response)
     return {
-        "usageData": jsonResponse['objUsageGenerationResultSetTwo'], # Raw usage data for each timeframe
-        "tentativeData": jsonResponse['getTentativeData'] # Accumulated usage data and predictions
+        "usageData": json_response['objUsageGenerationResultSetTwo'], # Raw usage data for each timeframe
+        "tentativeData": json_response['getTentativeData'] # Accumulated usage data and predictions
     }
 
-def setupRequestParameters(parameters):
+def setup_request_params(parameters):
     # Setup cookies and csrftoken to perform requests
-    usageRequestCookies['ApplicationGatewayAffinityCORS'] = parameters['aga']
-    usageRequestCookies['ApplicationGatewayAffinity'] = parameters['aga']
-    usageRequestCookies['ASP.NET_SessionId'] = parameters['asi']
-    usageRequestCookies['SCP'] = parameters['lt']
-    genericRequestHeaders['csrftoken'] = parameters['ct']
+    usage_request_cookies['ApplicationGatewayAffinityCORS'] = parameters['aga']
+    usage_request_cookies['ApplicationGatewayAffinity'] = parameters['aga']
+    usage_request_cookies['ASP.NET_SessionId'] = parameters['asi']
+    usage_request_cookies['SCP'] = parameters['lt']
+    generic_request_headers['csrftoken'] = parameters['ct']
 
 # Service calling method
 
-def requestUsageData(requestParameters):
-    setupRequestParameters(requestParameters)
+def request_usage_data(request_params):
+    setup_request_params(request_params)
     return {
-        "electric": requestElectric(),
-        "water": requestWater()
+        "electric": request_electric(),
+        "water": request_water()
     }
 
-def getYesterday():
+def get_yesterday_date():
     yesterday = date.today() - timedelta(days = 1)
     return yesterday.strftime("%x")
 
-def cleanResponse(response: dict):
+def clean_response(response: dict):
     # Remove the response keys that provide no information
-    for key in uselessResponseKeys:
-        removeKey(response, key)
+    for key in useless_response_keys:
+        remove_key(response, key)
 
-def removeKey(object, keyBeingRemoved):
+def remove_key(object, key_to_remove):
     # If object is a dict, recursively search over data for keyBeingRemoved
     if (isinstance(object, dict)):
-        for listData in list(object):
-            if listData == keyBeingRemoved:
-                del object[keyBeingRemoved]
+        for list_data in list(object):
+            if list_data == key_to_remove:
+                del object[key_to_remove]
             else:
-                removeKey(object[listData], keyBeingRemoved)
+                remove_key(object[list_data], key_to_remove)
     # If the object is a list, iterate over each object in the list
     elif (isinstance(object, list)):
-        for listData in list(object):
-            removeKey(listData, keyBeingRemoved)
+        for list_data in list(object):
+            remove_key(list_data, key_to_remove)
